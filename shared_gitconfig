@@ -1,0 +1,38 @@
+[color]
+    diff = auto
+    branch = auto
+    status = auto
+[push]
+    default = tracking
+[alias]
+    pr = !git pull-request
+    st = !git status
+    up = !git fetch --tags & git status
+    ci = !git commit -a
+    df = !git difftool
+    dfc = !git df --cached
+    co = checkout
+    cob = checkout -b
+    lol =log --graph --decorate --pretty=format:\"%Cblue %h%C(magenta) %ad %C(cyan) %d %Creset %s %C(green)[%an]\" --date=short
+    l  = log --pretty=format:\"%Cblue%h %C(magenta)%ad %C(green)[%an] %Creset%s %C(cyan)%d\" --date=short
+    author = log --pretty=format:\"%C(blue) %h %C(magenta) %ad %C(green) [%an] %Creset %s\" --date=short --author
+    bclean = "!f() { git branch --merged ${1-master} | grep -v " ${1-master}$" | xargs -r git branch -d; }; f"
+    ec = config --global -e
+    up = !git pull --rebase --prune $@ && git submodule update --init --recursive
+    cm = !git add -A && git commit -m
+    save = !git add -A && git commit -m 'SAVEPOINT'
+    undo = reset HEAD~1 --mixed
+    amend = commit -a --amend
+    wipe = !git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard
+    bclean = "!f() { git branch --merged ${1-master} | grep -v " ${1-master}$" | xargs git branch -d; }; f"
+    bdone = "!f() { git checkout ${1-master} && git up && git bclean ${1-master}; }; f"
+[diff]
+	tool = Kaleidoscope
+[difftool "Kaleidoscope"]
+	cmd = ksdiff-wrapper git \"$LOCAL\" \"$REMOTE\"
+[difftool]
+	prompt = false
+[filter "lfs"]
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+	required = true

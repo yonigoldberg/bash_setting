@@ -1,0 +1,108 @@
+#functions for showing git repo status on the command line
+
+# * uncommitted changes
+# ^ stashed changes
+# > ahead of origin
+# < behind origin
+# ↕ diverged from origin
+# R rebasing
+function parse_git_dirty() {
+regex="working tree clean"
+  if [[ $1 =~ $regex ]]
+  then
+    echo ""
+  else
+    echo "*"
+  fi
+}
+
+function parse_git_rebasing() {
+  regex="currently rebasing"
+  if [[ $1 =~ $regex ]]
+  then
+    echo "R"
+  else
+    echo ""
+  fi
+}
+
+function parse_git_stash (){
+  stash=`git stash list 2> /dev/null | wc -l | tr -d ' '`
+
+  [[ $stash != 0 ]] && echo "^$stash"
+}
+
+function parse_git_ahead() {
+  regex="Your branch is ahead of [a-z'/]+ by ([0-9]+)"
+  if [[ $1 =~ $regex ]]
+  then
+    n=${BASH_REMATCH[1]}
+    echo ">$n"
+  fi
+}
+
+function parse_git_behind() {
+  regex="Your branch is behind [a-z'/]+ by ([0-9]+)"
+  if [[ $1 =~ $regex ]]
+  then
+    n=${BASH_REMATCH[1]}
+    echo "<$n"
+  fi
+}
+
+function parse_git_diverge() {
+  regex="([0-9]+) and ([0-9]+) different commits"
+  if [[ $1 =~ $regex ]]
+  then
+    your=${BASH_REMATCH[1]}
+    source=${BASH_REMATCH[2]}
+    symbol="↕"
+    echo "$your$symbol$source"
+  fi
+}
+
+function current_git_branch() {
+  git rev-parse --abbrev-ref HEAD 2> /dev/null
+}
+
+function current_git_branch_with_markers {
+  current=`current_git_branch`
+  if [[ $current ]]
+  then
+    git_status=`git status 2> /dev/null`
+    stash=`parse_git_stash`
+    ahead=`parse_git_ahead "$git_status"`
+    behind=`parse_git_behind "$git_status"`
+    diverge=`parse_git_diverge "$git_status"`
+    dirty=`parse_git_dirty "$git_status"`
+    rebasing=`parse_git_rebasing "$git_status"`
+    echo $current | sed -e "s/\(.*\)/ \[\1$ahead$behind$diverge$dirty$rebasing$stash\]/"
+  fi
+}
+
+function set_prompt {
+  local BLACK="\[\033[0;38m\]"
+  local RED="\[\033[0;31m\]"
+  local RED_BOLD="\[\033[01;31m\]"
+  local BLUE="\[\033[01;34m\]"
+  local GREEN="\[\033[0;32m\]"
+  PS1="$RED\h $GREEN\w $RED_BOLD\$(current_git_branch_with_markers) $BLACK\$ "
+  PS1="$PS1"
+}
+
+set_prompt
+export PATH="$PATH:/usr/local/bin"
+export PATH="$PATH:~/Library/Python/3.6/bin/:~/Library/Python/2.7/bin/"
+
+alias pt=papertrail
+alias cd..='cd ..'
+alias g='git grep -in'
+alias push_branch='git push origin $(current_git_branch)'
+alias gcom='git log \--no-merges \--decorate \--pretty=format:%s" ""("%an")'
+alias lg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
+alias f='find . -name'
+alias preview="open -a Preview"
+alias gp="git pull --rebase"
+alias rubo="rubocop -c .rubocop.yml -a"
+
+chrome() { open /Applications/Google\ Chrome.app "$@"; }
