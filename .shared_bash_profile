@@ -104,5 +104,6 @@ alias f='find . -name'
 alias preview="open -a Preview"
 alias gp="git pull --rebase"
 alias rubo="rubocop -c .rubocop.yml -a"
+alias git=hub
 
 chrome() { open /Applications/Google\ Chrome.app "$@"; }
