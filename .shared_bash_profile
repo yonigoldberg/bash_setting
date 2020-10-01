@@ -97,13 +97,14 @@ export PATH="$PATH:~/Library/Python/3.6/bin/:~/Library/Python/2.7/bin/"
 alias pt=papertrail
 alias cd..='cd ..'
 alias g='git grep -in'
+alias gp='git pull origin $(current_git_branch)'
 alias push_branch='git push origin $(current_git_branch)'
 alias gcom='git log \--no-merges \--decorate \--pretty=format:%s" ""("%an")'
 alias lg="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
 alias f='find . -name'
 alias preview="open -a Preview"
 alias gp="git pull --rebase"
-alias rubo="rubocop -c .rubocop.yml -a"
-alias git=hub
+alias rubo="git diff --name-only | xargs rubocop -c .rubocop.yml -a"
 
 chrome() { open /Applications/Google\ Chrome.app "$@"; }
+eval "$(direnv hook bash)"
